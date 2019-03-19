@@ -8,5 +8,7 @@ Projeto open source para fazer vídeos automatizados
 File: 'algorithmia.json'
 
 '''
-
+	{
+		"apiKey": "simYW4NKk0LTfWajP1UOsYnSSJq1"
+	}
 '''
