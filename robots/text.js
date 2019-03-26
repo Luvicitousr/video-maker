@@ -6,30 +6,34 @@ const watsonApiKey = require('../credentials/watson-nlu.json').apikey
 
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
  
-var nlu = new NaturalLanguageUnderstandingV1({
+const nlu = new NaturalLanguageUnderstandingV1({
 	  iam_apikey: watsonApiKey,
 	  version: '2018-04-05',
 	  url: 'https://gateway.watsonplatform.net/natural-language-understanding/api/'
 })
 
+const state = require('./state.js')
 
 
+async function robot() {
+	const content = state.load()
+	
+    	await fetchContentFromWikipedia(content)
+    	sanitizeContent(content)
+    	breakContentIntoSentences(content)
+    	limitMaximumSentences(content)
+    	await fetchKeywordsOfAllSentences(content)
 
-async function robot(content) {
-    await fetchContentFromWikipedia(content)
-    sanitizeContent(content)
-    breakContentIntoSentences(content)
-    limitMaximumSentences(content)
-    await fetchKeywordsOfAllSentences(content)
+	state.save(content)
 
-	  async function fetchContentFromWikipedia(content) {
-		      const algorithmiaAuthenticated = algorithmia(algorithmiaApiKey)
-		      const wikipediaAlgorithm = algorithmiaAuthenticated.algo('web/WikipediaParser/0.1.2')
-		      const wikipediaResponde = await wikipediaAlgorithm.pipe(content.searchTerm)
-		      const wikipediaContent = wikipediaResponde.get()
+	async function fetchContentFromWikipedia(content) {
+		const algorithmiaAuthenticated = algorithmia(algorithmiaApiKey)
+		const wikipediaAlgorithm = algorithmiaAuthenticated.algo('web/WikipediaParser/0.1.2')
+		const wikipediaResponde = await wikipediaAlgorithm.pipe(content.searchTerm)
+		const wikipediaContent = wikipediaResponde.get()
 
-		      content.sourceContentOriginal = wikipediaContent.content
-		    }
+		content.sourceContentOriginal = wikipediaContent.content
+		}
 
 	  function sanitizeContent(content) {
 		      const withoutBlankLinesAndMarkdown = removeBlankLinesAndMarkdown(content.sourceContentOriginal)
